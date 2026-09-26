@@ -1,0 +1,139 @@
+{% doc %}
+  Renders one product personalisation input from a Personalisation option metaobject.
+
+  @param {metaobject} option - The referenced Personalisation option entry.
+  @param {string} product_form_id - The product form that receives the line-item property.
+  @param {string} product_id - The current product ID.
+  @param {string} block_id - The parent block ID.
+  @param {number} field_index - The field position, used to create a unique input ID.
+{% enddoc %}
+
+{%- liquid
+  assign property_key = option.key.value | strip
+  assign field_label = option.label.value | strip
+  assign configured_input_type = option.input_type.value
+
+  if option.input_type.type contains 'list.'
+    assign configured_input_type = configured_input_type | first
+  endif
+
+  assign input_type = configured_input_type | handleize
+  assign autocomplete = 'off'
+
+  case input_type
+    when 'email'
+      assign autocomplete = 'email'
+    when 'tel'
+      assign autocomplete = 'tel'
+    when 'textarea', 'file', 'text'
+    else
+      assign input_type = 'text'
+  endcase
+
+  assign property_key_handle = property_key | handleize
+  if input_type == 'text'
+    case property_key_handle
+      when 'name', 'nome', 'full-name'
+        assign autocomplete = 'name'
+      when 'company', 'business', 'organisation', 'organization', 'loja'
+        assign autocomplete = 'organization'
+    endcase
+  endif
+
+  assign placeholder = option.placeholder.value
+  assign help_text = option.help_text.value
+  assign customer_required = option.customer_required.value
+  assign max_length = option.max_length.value
+  assign accepted_file_types = option.accepted_file_types.value | default: 'image/*'
+
+  if max_length == blank
+    if input_type == 'textarea'
+      assign max_length = 500
+    elsif input_type != 'file'
+      assign max_length = 100
+    endif
+  endif
+
+  assign field_id = 'Personalisation-product_id-block_id-index' | replace: 'product_id', product_id | replace: 'block_id', block_id | replace: 'index', field_index
+  assign help_id = field_id | append: '-help'
+-%}
+
+{% if property_key != blank and field_label != blank %}
+  <div class="product-personalisation__field">
+    <label
+      class="product-personalisation__label"
+      for="{{ field_id }}"
+    >
+      {{ field_label | escape }}
+      {% if customer_required %}
+        <span aria-hidden="true">*</span>
+      {% endif %}
+    </label>
+
+    {% case input_type %}
+      {% when 'textarea' %}
+        <textarea
+          id="{{ field_id }}"
+          class="field__input product-personalisation__input product-personalisation__textarea"
+          name="properties[{{ field_label | escape }}]"
+          form="{{ product_form_id }}"
+          rows="4"
+          maxlength="{{ max_length }}"
+          {% if placeholder != blank %}
+            placeholder="{{ placeholder | escape }}"
+          {% endif %}
+          {% if help_text != blank %}
+            aria-describedby="{{ help_id }}"
+          {% endif %}
+          {% if customer_required %}
+            required aria-required="true"
+          {% endif %}
+        ></textarea>
+
+      {% when 'file' %}
+        <input
+          id="{{ field_id }}"
+          class="field__input product-personalisation__input product-personalisation__file"
+          type="file"
+          name="properties[{{ field_label | escape }}]"
+          form="{{ product_form_id }}"
+          accept="{{ accepted_file_types | escape }}"
+          {% if help_text != blank %}
+            aria-describedby="{{ help_id }}"
+          {% endif %}
+          {% if customer_required %}
+            required aria-required="true"
+          {% endif %}
+        >
+
+      {% else %}
+        <input
+          id="{{ field_id }}"
+          class="field__input product-personalisation__input"
+          type="{{ input_type }}"
+          name="properties[{{ field_label | escape }}]"
+          form="{{ product_form_id }}"
+          autocomplete="{{ autocomplete }}"
+          maxlength="{{ max_length }}"
+          {% if placeholder != blank %}
+            placeholder="{{ placeholder | escape }}"
+          {% endif %}
+          {% if help_text != blank %}
+            aria-describedby="{{ help_id }}"
+          {% endif %}
+          {% if customer_required %}
+            required aria-required="true"
+          {% endif %}
+        >
+    {% endcase %}
+
+    {% if help_text != blank %}
+      <div
+        id="{{ help_id }}"
+        class="product-personalisation__help-text"
+      >
+        {{ help_text | escape | newline_to_br }}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}

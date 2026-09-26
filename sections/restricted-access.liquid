@@ -1,0 +1,33 @@
+<section class="restricted-access">
+  <div class="restricted-access__content">
+    <h1 class="h1">{{ 'content.account_title' | t }}</h1>
+
+    <a class="button" href="{{ routes.account_login_url }}">
+      {{ 'actions.log_in' | t }}
+    </a>
+  </div>
+</section>
+
+{% stylesheet %}
+  .restricted-access {
+    display: grid;
+    min-height: 100svh;
+    place-items: center;
+    padding: clamp(3rem, 10vw, 8rem) var(--page-margin);
+    text-align: center;
+  }
+
+  .restricted-access__content {
+    display: grid;
+    justify-items: center;
+    gap: var(--gap-xl);
+    max-width: 32rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Restricted access",
+  "settings": []
+}
+{% endschema %}

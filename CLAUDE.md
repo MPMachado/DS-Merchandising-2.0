@@ -1,0 +1,1 @@
+/Users/miguel/Work/Development/DS Playground/DS Merchandising 2.0/AGENTS.md

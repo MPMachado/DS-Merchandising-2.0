@@ -181,6 +181,13 @@
               },
               "blocks": {}
             },
+            "personalisation_fields": {
+              "type": "product-personalisation",
+              "settings": {
+                "heading": "Personalisation"
+              },
+              "blocks": {}
+            },
             "buy_buttons_eYQEYi": {
               "type": "buy-buttons",
               "settings": {
@@ -246,6 +253,7 @@
             "group_icgrde",
             "divider_VJhene",
             "variant_picker_R3rGDr",
+            "personalisation_fields",
             "buy_buttons_eYQEYi",
             "text_aEtTtq"
           ]

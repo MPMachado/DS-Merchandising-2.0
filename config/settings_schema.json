@@ -2116,5 +2116,16 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Restricted access",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "restricted_mode",
+        "label": "Restricted mode",
+        "default": false
+      }
+    ]
   }
 ]

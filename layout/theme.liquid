@@ -1,4 +1,23 @@
 <!doctype html>
+{% liquid
+  assign restricted_access = false
+
+  if settings.restricted_mode
+    if customer == nil
+      assign restricted_access = true
+
+      case request.page_type
+        when 'customers/login', 'customers/register', 'customers/reset_password', 'customers/activate_account', 'cart', 'policy'
+          assign restricted_access = false
+      endcase
+
+      if request.design_mode
+        assign restricted_access = false
+      endif
+    endif
+  endif
+%}
+
 <html
   {% if request.design_mode %}
     class="shopify-design-mode"
@@ -30,12 +49,25 @@
     {% endif %}
 
     {{ content_for_header }}
+
+    {% if restricted_access %}
+      <meta http-equiv="refresh" content="0; url={{ routes.account_login_url | escape }}">
+    {% endif %}
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
-    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    {% if restricted_access %}
+      <main
+        id="MainContent"
+        class="content-for-layout"
+        role="main"
+      >
+        {% section 'restricted-access' %}
+      </main>
+    {% else %}
+      {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
 
-    {% render 'chat-drawer' %}
+      {% render 'chat-drawer' %}
 
     <div class="page-wrapper">
       <div id="header-group">
@@ -170,8 +202,9 @@
 
     {% render 'search-modal' %}
 
-    {% if settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add-modal' %}
+      {% if settings.quick_add or settings.mobile_quick_add %}
+        {% render 'quick-add-modal' %}
+      {% endif %}
     {% endif %}
   </body>
 </html>

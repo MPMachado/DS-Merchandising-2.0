@@ -1,0 +1,101 @@
+{%- liquid
+  assign personalisation_metafield = closest.product.metafields.custom.personalisation
+  assign personalisation_options = personalisation_metafield.value
+  assign product_form_id = 'BuyButtons-ProductForm-section.id' | replace: 'section.id', section.id
+-%}
+
+{% if personalisation_options != blank %}
+  <div
+    class="product-personalisation"
+    {{ block.shopify_attributes }}
+  >
+    {% if block.settings.heading != blank %}
+      <h3 class="product-personalisation__heading h5">
+        {{ block.settings.heading | escape }}
+      </h3>
+    {% endif %}
+
+    <div class="product-personalisation__fields">
+      {% if personalisation_metafield.type == 'list.metaobject_reference' %}
+        {% for option in personalisation_options %}
+          {% render 'product-personalisation-field',
+            option: option,
+            product_form_id: product_form_id,
+            product_id: closest.product.id,
+            block_id: block.id,
+            field_index: forloop.index
+          %}
+        {% endfor %}
+      {% elsif personalisation_metafield.type == 'metaobject_reference' %}
+        {% render 'product-personalisation-field',
+          option: personalisation_options,
+          product_form_id: product_form_id,
+          product_id: closest.product.id,
+          block_id: block.id,
+          field_index: 1
+        %}
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .product-personalisation {
+    width: 100%;
+  }
+
+  .product-personalisation__heading {
+    margin-block: 0 var(--padding-sm);
+  }
+
+  .product-personalisation__fields {
+    display: grid;
+    gap: var(--gap-md);
+  }
+
+  .product-personalisation__field {
+    display: grid;
+    gap: var(--gap-xs);
+  }
+
+  .product-personalisation__label {
+    font-size: var(--font-paragraph--size);
+  }
+
+  .product-personalisation__input {
+    width: 100%;
+  }
+
+  .product-personalisation__textarea {
+    min-height: var(--input-textarea-min-height);
+    resize: vertical;
+  }
+
+  .product-personalisation__file {
+    padding: var(--input-padding);
+  }
+
+  .product-personalisation__help-text {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+    font-size: 0.875em;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product personalisation",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Personalisation"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product personalisation"
+    }
+  ]
+}
+{% endschema %}
