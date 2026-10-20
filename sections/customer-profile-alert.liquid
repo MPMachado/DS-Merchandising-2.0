@@ -1,0 +1,169 @@
+{% liquid
+  assign show_profile_alert = false
+
+  if customer
+    assign marcas = customer.metafields.custom.marcas.value
+    assign agencia = customer.metafields.custom.agencia.value
+
+    if marcas == blank or agencia == blank
+      assign show_profile_alert = true
+    endif
+  endif
+
+  if request.design_mode
+    assign show_profile_alert = true
+  endif
+
+  if show_profile_alert
+    assign account_url_parts = routes.account_url | split: '?'
+    assign account_base_url = account_url_parts | first
+  endif
+%}
+
+{% render 'button-custom-styles', block_settings: section.settings, block_id: section.id %}
+
+{% if show_profile_alert %}
+  <div
+    class="section-background"
+    style="--color-background: {{ section.settings.background_color }};"
+  ></div>
+  <aside
+    class="customer-profile-alert section section--page-width"
+    role="alert"
+  >
+    <div class="customer-profile-alert__message">
+      <p class="customer-profile-alert__text">
+        {{ section.settings.message }}
+        <strong>
+          {%- if marcas == blank -%}Marcas{%- endif -%}
+          {%- if marcas == blank and agencia == blank %} e {% endif -%}
+          {%- if agencia == blank -%}Agência{%- endif -%}.
+        </strong>
+      </p>
+      <a
+        class="customer-profile-alert__link {{ section.settings.style_class }} {{ section.settings.style_class }}--{{ section.id }}"
+        href="{{ account_base_url }}/profile{% if account_url_parts.size > 1 %}?{{ account_url_parts.last }}{% endif %}"
+      >
+        {{- section.settings.link_label -}}
+      </a>
+    </div>
+  </aside>
+{% endif %}
+
+{% stylesheet %}
+  .customer-profile-alert {
+    padding-block: 0.75rem;
+    color: var(--color-foreground);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
+  }
+
+  .customer-profile-alert__message {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    width: 100%;
+    margin: 0;
+    text-align: start;
+  }
+
+  .customer-profile-alert__text {
+    flex: 1 1 20rem;
+    margin: 0;
+  }
+
+  .customer-profile-alert__link {
+    display: inline-grid;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    padding-block: 0.45rem;
+    padding-inline: 0.9rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Customer profile alert",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "message",
+      "label": "Mensagem",
+      "default": "Tem os seguintes campos em falta no seu perfil:"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Texto da ligação",
+      "default": "Atualizar perfil"
+    },
+    {
+      "type": "select",
+      "id": "style_class",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "button",
+          "label": "t:options.primary"
+        },
+        {
+          "value": "button-secondary",
+          "label": "t:options.secondary"
+        },
+        {
+          "value": "button-custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "button",
+      "info": "t:info.edit_button_style_in_theme_settings"
+    },
+    {
+      "type": "header",
+      "content": "t:content.button_colors",
+      "visible_if": "{{ section.settings.style_class == 'button-custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "t:settings.background",
+      "default": "{{ settings.color_palette.foreground }}",
+      "alpha": true,
+      "visible_if": "{{ section.settings.style_class == 'button-custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "t:settings.text",
+      "default": "{{ settings.color_palette.background }}",
+      "alpha": true,
+      "visible_if": "{{ section.settings.style_class == 'button-custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_border",
+      "label": "t:settings.borders",
+      "default": "{{ settings.color_palette.background }}",
+      "alpha": true,
+      "visible_if": "{{ section.settings.style_class == 'button-custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Cor de fundo",
+      "default": "#f4f4f4"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer profile alert"
+    }
+  ]
+}
+{% endschema %}

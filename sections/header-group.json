@@ -99,10 +99,20 @@
         "enable_transparent_header_product": false,
         "enable_transparent_header_collection": false
       }
+    },
+    "customer_profile_alert": {
+      "type": "customer-profile-alert",
+      "settings": {
+        "message": "Tem os seguintes campos em falta no seu perfil:",
+        "link_label": "Atualizar perfil",
+        "style_class": "button",
+        "background_color": "#f4f4f4"
+      }
     }
   },
   "order": [
     "header_announcements_9jGBFp",
-    "header_section"
+    "header_section",
+    "customer_profile_alert"
   ]
 }
